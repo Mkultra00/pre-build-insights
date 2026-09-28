@@ -18,7 +18,7 @@ One street address in, one cited, geo-verified report out, covering a 0.5-mile r
 - Build a queued report: POST ${origin}/api/public/pipeline/run  body: {"id": "<report id>"}
 - Poll status: GET ${origin}/api/v1/reports/{id}
 - Report as HTML (server-rendered, no JavaScript needed): ${origin}/r/{slug}
-- Report as JSON (same data): ${origin}/r/{slug}/json
+- Report as JSON (same data): ${origin}/r/{slug}.json
 - JSON Schema: ${origin}/schema.json
 
 ## Scrape contract
