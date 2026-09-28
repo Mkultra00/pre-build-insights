@@ -10,6 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
+import { Route as SchemaDotjsonRouteImport } from './routes/schema[.]json'
+import { Route as RSlugRouteImport } from './routes/r.$slug'
+import { Route as RSlugDotjsonRouteImport } from './routes/r.$slug[.]json'
 import { Route as ApiV1ReportsRouteImport } from './routes/api/v1/reports'
 import { Route as ApiPublicPipelineRunRouteImport } from './routes/api/public/pipeline/run'
 import { Route as ApiV1ReportsIdRouteImport } from './routes/api/v1/reports.$id'
@@ -17,6 +21,26 @@ import { Route as ApiV1ReportsIdRouteImport } from './routes/api/v1/reports.$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
+  id: '/llms.txt',
+  path: '/llms.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SchemaDotjsonRoute = SchemaDotjsonRouteImport.update({
+  id: '/schema.json',
+  path: '/schema.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RSlugRoute = RSlugRouteImport.update({
+  id: '/r/$slug',
+  path: '/r/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RSlugDotjsonRoute = RSlugDotjsonRouteImport.update({
+  id: '/r/$slug.json',
+  path: '/r/$slug.json',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiV1ReportsRoute = ApiV1ReportsRouteImport.update({
@@ -37,12 +61,20 @@ const ApiV1ReportsIdRoute = ApiV1ReportsIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/schema.json': typeof SchemaDotjsonRoute
+  '/r/$slug': typeof RSlugRoute
+  '/r/$slug.json': typeof RSlugDotjsonRoute
   '/api/v1/reports': typeof ApiV1ReportsRouteWithChildren
   '/api/public/pipeline/run': typeof ApiPublicPipelineRunRoute
   '/api/v1/reports/$id': typeof ApiV1ReportsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/schema.json': typeof SchemaDotjsonRoute
+  '/r/$slug': typeof RSlugRoute
+  '/r/$slug.json': typeof RSlugDotjsonRoute
   '/api/v1/reports': typeof ApiV1ReportsRouteWithChildren
   '/api/public/pipeline/run': typeof ApiPublicPipelineRunRoute
   '/api/v1/reports/$id': typeof ApiV1ReportsIdRoute
@@ -50,6 +82,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/llms.txt': typeof LlmsDottxtRoute
+  '/schema.json': typeof SchemaDotjsonRoute
+  '/r/$slug': typeof RSlugRoute
+  '/r/$slug.json': typeof RSlugDotjsonRoute
   '/api/v1/reports': typeof ApiV1ReportsRouteWithChildren
   '/api/public/pipeline/run': typeof ApiPublicPipelineRunRoute
   '/api/v1/reports/$id': typeof ApiV1ReportsIdRoute
@@ -57,13 +93,31 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/api/v1/reports' | '/api/public/pipeline/run' | '/api/v1/reports/$id'
+    | '/'
+    | '/llms.txt'
+    | '/schema.json'
+    | '/r/$slug'
+    | '/r/$slug.json'
+    | '/api/v1/reports'
+    | '/api/public/pipeline/run'
+    | '/api/v1/reports/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/api/v1/reports' | '/api/public/pipeline/run' | '/api/v1/reports/$id'
+    | '/'
+    | '/llms.txt'
+    | '/schema.json'
+    | '/r/$slug'
+    | '/r/$slug.json'
+    | '/api/v1/reports'
+    | '/api/public/pipeline/run'
+    | '/api/v1/reports/$id'
   id:
     | '__root__'
     | '/'
+    | '/llms.txt'
+    | '/schema.json'
+    | '/r/$slug'
+    | '/r/$slug.json'
     | '/api/v1/reports'
     | '/api/public/pipeline/run'
     | '/api/v1/reports/$id'
@@ -71,6 +125,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LlmsDottxtRoute: typeof LlmsDottxtRoute
+  SchemaDotjsonRoute: typeof SchemaDotjsonRoute
+  RSlugRoute: typeof RSlugRoute
+  RSlugDotjsonRoute: typeof RSlugDotjsonRoute
   ApiV1ReportsRoute: typeof ApiV1ReportsRouteWithChildren
   ApiPublicPipelineRunRoute: typeof ApiPublicPipelineRunRoute
 }
@@ -82,6 +140,34 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/llms.txt': {
+      id: '/llms.txt'
+      path: '/llms.txt'
+      fullPath: '/llms.txt'
+      preLoaderRoute: typeof LlmsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/schema.json': {
+      id: '/schema.json'
+      path: '/schema.json'
+      fullPath: '/schema.json'
+      preLoaderRoute: typeof SchemaDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/r/$slug': {
+      id: '/r/$slug'
+      path: '/r/$slug'
+      fullPath: '/r/$slug'
+      preLoaderRoute: typeof RSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/r/$slug.json': {
+      id: '/r/$slug.json'
+      path: '/r/$slug.json'
+      fullPath: '/r/$slug.json'
+      preLoaderRoute: typeof RSlugDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/v1/reports': {
@@ -122,6 +208,10 @@ const ApiV1ReportsRouteWithChildren = ApiV1ReportsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LlmsDottxtRoute: LlmsDottxtRoute,
+  SchemaDotjsonRoute: SchemaDotjsonRoute,
+  RSlugRoute: RSlugRoute,
+  RSlugDotjsonRoute: RSlugDotjsonRoute,
   ApiV1ReportsRoute: ApiV1ReportsRouteWithChildren,
   ApiPublicPipelineRunRoute: ApiPublicPipelineRunRoute,
 }
