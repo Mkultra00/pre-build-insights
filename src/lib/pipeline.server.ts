@@ -20,7 +20,16 @@ type Paragraph = { text: string; fact_refs: string[] };
  */
 function readParagraphs(raw: string): Paragraph[] {
   const parsed = parseJsonObject<{ paragraphs?: Paragraph[] }>(raw);
-  const list = Array.isArray(parsed?.paragraphs) ? parsed.paragraphs : [];
+  let list = Array.isArray(parsed?.paragraphs) ? parsed.paragraphs : [];
+
+  // A reply cut off mid-stream still holds complete paragraphs; salvage them.
+  if (list.length === 0) {
+    list = [...raw.matchAll(/"text"\s*:\s*"((?:[^"\\]|\\.)*)"/g)].map((m) => ({
+      text: JSON.parse(`"${m[1]}"`) as string,
+      fact_refs: [],
+    }));
+  }
+
   return list
     .map((p) => {
       const text = typeof p?.text === "string" ? p.text.trim() : "";
