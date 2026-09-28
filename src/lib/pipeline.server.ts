@@ -12,6 +12,27 @@ import { SECTIONS, type SectionId } from "./report-schema";
 
 const SLUG_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789";
 
+type Paragraph = { text: string; fact_refs: string[] };
+
+/**
+ * Read paragraphs out of a model reply. Citations in the prose are the source
+ * of truth, so a reply that omits the fact_refs array still survives.
+ */
+function readParagraphs(raw: string): Paragraph[] {
+  const parsed = parseJsonObject<{ paragraphs?: Paragraph[] }>(raw);
+  const list = Array.isArray(parsed?.paragraphs) ? parsed.paragraphs : [];
+  return list
+    .map((p) => {
+      const text = typeof p?.text === "string" ? p.text.trim() : "";
+      const inline = [...text.matchAll(/\[(f-\d{4})\]/g)].map((m) => m[1]!);
+      const declared = Array.isArray(p?.fact_refs)
+        ? p.fact_refs.filter((r): r is string => typeof r === "string")
+        : [];
+      return { text, fact_refs: [...new Set([...inline, ...declared])] };
+    })
+    .filter((p) => p.text.length > 0 && p.fact_refs.length > 0);
+}
+
 export function makeSlug(): string {
   let out = "";
   const bytes = crypto.getRandomValues(new Uint8Array(8));
