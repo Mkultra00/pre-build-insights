@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /** The JSON twin. Same data as /r/$slug, rendered from the same builder. */
-export const Route = createFileRoute("/r/$slug.json")({
+export const Route = createFileRoute("/r/$slug/json")({
   server: {
     handlers: {
       GET: async ({ params }) => {
         const { loadReportBySlug } = await import("@/lib/reports.server");
-        const slug = (params as Record<string, string>)["slug.json"]!;
+        const slug = (params as Record<string, string>)["slug"]!;
         const report = await loadReportBySlug(slug);
         const headers = {
           "Content-Type": "application/json; charset=utf-8",
