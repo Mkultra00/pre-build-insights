@@ -9,24 +9,7 @@ import {
 } from "@/lib/report-schema";
 
 export const Route = createFileRoute("/r/$slug")({
-  loader: async ({ params }) => {
-    // The JSON twin shares this URL space: /r/<slug>.json returns the same
-    // document as JSON. A thrown Response short-circuits rendering.
-    if (params.slug.endsWith(".json")) {
-      const report = await getReport({
-        data: { slug: params.slug.slice(0, -".json".length) },
-      });
-      throw new Response(JSON.stringify(report ?? { error: { code: "NOT_FOUND" } }, null, 2), {
-        status: report ? 200 : 404,
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-          "Access-Control-Allow-Origin": "*",
-          "Cache-Control": "public, max-age=60",
-        },
-      });
-    }
-    return getReport({ data: { slug: params.slug } });
-  },
+  loader: async ({ params }) => getReport({ data: { slug: params.slug } }),
   head: ({ loaderData, params }) => {
     if (!loaderData) {
       return {
