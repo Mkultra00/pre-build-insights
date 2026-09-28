@@ -8,7 +8,10 @@ const CORS = {
   "Content-Type": "application/json",
 };
 
-const BodySchema = z.object({ id: z.string().uuid() });
+const BodySchema = z.object({
+  id: z.string().uuid(),
+  force: z.boolean().optional(),
+});
 
 /**
  * Builds a queued report. Public because scrapers and the browser both need to
@@ -49,7 +52,11 @@ export const Route = createFileRoute("/api/public/pipeline/run")({
         const stale =
           Date.now() - new Date(report.updated_at as string).getTime() >
           5 * 60 * 1000;
-        if (report.status === "complete" || (report.status === "running" && !stale)) {
+        const force = parsed.data.force === true;
+        if (
+          !force &&
+          (report.status === "complete" || (report.status === "running" && !stale))
+        ) {
           return new Response(
             JSON.stringify({ id: report.id, status: report.status, started: false }),
             { status: 200, headers: CORS },
