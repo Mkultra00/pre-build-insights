@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap-note: report URLs are unguessable and unlisted by design.
