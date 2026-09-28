@@ -29,6 +29,8 @@ export type SectionId =
 
 export const SECTIONS: { id: SectionId; title: string; blurb: string }[] = [
   { id: "summary", title: "Snapshot", blurb: "What this half mile is." },
+  { id: "vice", title: "Street-level vice", blurb: "Then and now." },
+  { id: "dark_history", title: "Dark history", blurb: "Notable crimes and disasters." },
   { id: "origins", title: "Origins", blurb: "How the ground became blocks." },
   { id: "timeline", title: "Timeline", blurb: "Dated events inside the circle." },
   {
@@ -36,8 +38,6 @@ export const SECTIONS: { id: SectionId; title: string; blurb: string }[] = [
     title: "Treatment & harm reduction",
     blurb: "Services operating nearby.",
   },
-  { id: "vice", title: "Street-level vice", blurb: "Then and now." },
-  { id: "dark_history", title: "Dark history", blurb: "Notable crimes and disasters." },
   { id: "folklore", title: "Folklore & the uncanny", blurb: "Reported lore, labeled as lore." },
   { id: "sources", title: "Sources & confidence", blurb: "Every claim, every link." },
 ];
