@@ -6,8 +6,7 @@ export const Route = createFileRoute("/r/$slug/json")({
     handlers: {
       GET: async ({ params }) => {
         const { loadReportBySlug } = await import("@/lib/reports.server");
-        const raw = (params as Record<string, string>)["slug.json"] ?? "";
-        const slug = raw.replace(/\.json$/, "");
+        const slug = params.slug;
         const report = await loadReportBySlug(slug);
         const headers = {
           "Content-Type": "application/json; charset=utf-8",

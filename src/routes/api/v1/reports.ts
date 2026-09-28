@@ -80,7 +80,7 @@ export const Route = createFileRoute("/api/v1/reports")({
                 reused: true,
                 urls: {
                   html: `${origin}/r/${existing.slug}`,
-                  json: `${origin}/r/${existing.slug}.json`,
+                  json: `${origin}/r/${existing.slug}/json`,
                 },
               }),
               { status: 200, headers: CORS },
@@ -122,7 +122,7 @@ export const Route = createFileRoute("/api/v1/reports")({
             run_url: `${origin}/api/public/pipeline/run`,
             urls: {
               html: `${origin}/r/${created.slug}`,
-              json: `${origin}/r/${created.slug}.json`,
+              json: `${origin}/r/${created.slug}/json`,
               status: `${origin}/api/v1/reports/${created.id}`,
             },
           }),

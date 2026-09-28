@@ -42,7 +42,7 @@ export const Route = createFileRoute("/r/$slug")({
         {
           rel: "alternate",
           type: "application/json",
-          href: `/r/${params.slug}.json`,
+          href: `/r/${params.slug}/json`,
         },
       ],
       scripts: [
@@ -203,7 +203,7 @@ function ReportPage() {
             PALIMPSEST
           </Link>
           <a
-            href={`/r/${report.slug}.json`}
+            href={`/r/${report.slug}/json`}
             className="eyebrow underline decoration-rule underline-offset-4"
             data-json-twin=""
           >

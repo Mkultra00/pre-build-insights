@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/v1/reports/$id")({
             ...data,
             urls: {
               html: `${origin}/r/${data.slug}`,
-              json: `${origin}/r/${data.slug}.json`,
+              json: `${origin}/r/${data.slug}/json`,
             },
           }),
           { status: 200, headers: CORS },
