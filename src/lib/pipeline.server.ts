@@ -144,7 +144,7 @@ export async function runPipeline(reportId: string): Promise<void> {
       status: "verified",
       source_name: c.source_name,
       source_url: c.source_url,
-      payload: c.payload ?? {},
+      payload: (c.payload ?? {}) as Record<string, never>,
     }));
     await supabaseAdmin.from("facts").delete().eq("report_id", reportId);
     if (rows.length > 0) await supabaseAdmin.from("facts").insert(rows);
