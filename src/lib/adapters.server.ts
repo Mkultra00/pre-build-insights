@@ -46,6 +46,21 @@ async function getJson<T>(url: string, timeoutMs = 15000): Promise<T | null> {
 
 /* ---------------------------------------------------------------- geocoding */
 
+const NON_NY_STATE = /,?\s\b(nj|new jersey|ct|connecticut|pa|pennsylvania)\b/i;
+const STREET_STOP = new Set(["st", "street", "ave", "avenue", "rd", "road", "ct", "court", "pl", "place", "blvd", "w", "e", "n", "s", "west", "east", "north", "south", "ny", "nyc", "new", "york"]);
+
+/** NYC GeoSearch fuzzy-matches anything to some NYC address; reject matches that don't share the street name. */
+function nycMatchIsTrustworthy(input: string, p: Record<string, unknown>): boolean {
+  if (NON_NY_STATE.test(input)) return false;
+  const conf = Number(p["confidence"] ?? 0);
+  if (conf && conf < 0.8) return false;
+  const label = String(p["label"] ?? "").toLowerCase();
+  const street = input.split(",")[0]!.toLowerCase().replace(/(\d+)(st|nd|rd|th)\b/g, "$1");
+  const words = street.split(/\s+/).filter((w) => w && !/^\d+$/.test(w) && !STREET_STOP.has(w));
+  const labelNorm = label.replace(/(\d+)(st|nd|rd|th)\b/g, "$1");
+  return words.every((w) => labelNorm.includes(w));
+}
+
 export async function geocode(address: string): Promise<GeocodeResult | null> {
   const nyc = await getJson<{
     features?: {
@@ -57,7 +72,7 @@ export async function geocode(address: string): Promise<GeocodeResult | null> {
   );
 
   const feature = nyc?.features?.[0];
-  if (feature) {
+  if (feature && nycMatchIsTrustworthy(address, feature.properties)) {
     const [lon, lat] = feature.geometry.coordinates;
     const p = feature.properties;
     return {
