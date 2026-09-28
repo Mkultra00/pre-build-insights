@@ -10,33 +10,69 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiV1ReportsRouteImport } from './routes/api/v1/reports'
+import { Route as ApiPublicPipelineRunRouteImport } from './routes/api/public/pipeline/run'
+import { Route as ApiV1ReportsIdRouteImport } from './routes/api/v1/reports.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiV1ReportsRoute = ApiV1ReportsRouteImport.update({
+  id: '/api/v1/reports',
+  path: '/api/v1/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPipelineRunRoute = ApiPublicPipelineRunRouteImport.update({
+  id: '/api/public/pipeline/run',
+  path: '/api/public/pipeline/run',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ReportsIdRoute = ApiV1ReportsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiV1ReportsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/v1/reports': typeof ApiV1ReportsRouteWithChildren
+  '/api/public/pipeline/run': typeof ApiPublicPipelineRunRoute
+  '/api/v1/reports/$id': typeof ApiV1ReportsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/v1/reports': typeof ApiV1ReportsRouteWithChildren
+  '/api/public/pipeline/run': typeof ApiPublicPipelineRunRoute
+  '/api/v1/reports/$id': typeof ApiV1ReportsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/v1/reports': typeof ApiV1ReportsRouteWithChildren
+  '/api/public/pipeline/run': typeof ApiPublicPipelineRunRoute
+  '/api/v1/reports/$id': typeof ApiV1ReportsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/api/v1/reports' | '/api/public/pipeline/run' | '/api/v1/reports/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    '/' | '/api/v1/reports' | '/api/public/pipeline/run' | '/api/v1/reports/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/v1/reports'
+    | '/api/public/pipeline/run'
+    | '/api/v1/reports/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiV1ReportsRoute: typeof ApiV1ReportsRouteWithChildren
+  ApiPublicPipelineRunRoute: typeof ApiPublicPipelineRunRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +84,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/v1/reports': {
+      id: '/api/v1/reports'
+      path: '/api/v1/reports'
+      fullPath: '/api/v1/reports'
+      preLoaderRoute: typeof ApiV1ReportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/pipeline/run': {
+      id: '/api/public/pipeline/run'
+      path: '/api/public/pipeline/run'
+      fullPath: '/api/public/pipeline/run'
+      preLoaderRoute: typeof ApiPublicPipelineRunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/reports/$id': {
+      id: '/api/v1/reports/$id'
+      path: '/$id'
+      fullPath: '/api/v1/reports/$id'
+      preLoaderRoute: typeof ApiV1ReportsIdRouteImport
+      parentRoute: typeof ApiV1ReportsRoute
+    }
   }
 }
 
+interface ApiV1ReportsRouteChildren {
+  ApiV1ReportsIdRoute: typeof ApiV1ReportsIdRoute
+}
+
+const ApiV1ReportsRouteChildren: ApiV1ReportsRouteChildren = {
+  ApiV1ReportsIdRoute: ApiV1ReportsIdRoute,
+}
+
+const ApiV1ReportsRouteWithChildren = ApiV1ReportsRoute._addFileChildren(
+  ApiV1ReportsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiV1ReportsRoute: ApiV1ReportsRouteWithChildren,
+  ApiPublicPipelineRunRoute: ApiPublicPipelineRunRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
