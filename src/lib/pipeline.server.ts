@@ -179,7 +179,8 @@ export async function runPipeline(reportId: string): Promise<void> {
         .join("\n");
 
       try {
-        const raw = await generateText(
+        const narrate = async () =>
+          generateText(
           [
             `Write the "${title}" section of a neighbourhood history report using ONLY the facts provided.`,
             "Every sentence must end with one or more citations in the form [f-0001].",
@@ -191,11 +192,16 @@ export async function runPipeline(reportId: string): Promise<void> {
           ].join(" "),
           `Address: ${report.address_norm ?? report.address_raw}\nRadius: ${radiusM} m\n\nFacts:\n${factList}`,
         );
-        const parsed = parseJsonObject<NarratedSection>(raw);
-        const paragraphs = (parsed?.paragraphs ?? []).filter(
-          (p) => p.text && Array.isArray(p.fact_refs) && p.fact_refs.length > 0,
-        );
-        if (paragraphs.length > 0) sections[sectionId] = paragraphs;
+
+        // One retry: a malformed JSON reply must not silently blank a section.
+        let paragraphs = readParagraphs(await narrate());
+        if (paragraphs.length === 0) paragraphs = readParagraphs(await narrate());
+        if (paragraphs.length > 0) {
+          sections[sectionId] = paragraphs;
+        } else {
+          partial = true;
+          console.error(`narrate ${sectionId} produced no paragraphs`);
+        }
       } catch (error) {
         console.error(`narrate ${sectionId} failed`, error);
         partial = true;
