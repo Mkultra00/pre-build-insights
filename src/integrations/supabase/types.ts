@@ -14,7 +14,229 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      facts: {
+        Row: {
+          category: string | null
+          claim: string
+          confidence: number
+          created_at: string
+          distance_m: number | null
+          event_date: string | null
+          geo_precision: string
+          id: string
+          is_folklore: boolean
+          lat: number | null
+          lon: number | null
+          origin: string
+          payload: Json
+          place_name: string | null
+          ref: string
+          report_id: string
+          retrieved_at: string
+          section: string
+          source_name: string | null
+          source_url: string | null
+          status: string
+        }
+        Insert: {
+          category?: string | null
+          claim: string
+          confidence?: number
+          created_at?: string
+          distance_m?: number | null
+          event_date?: string | null
+          geo_precision?: string
+          id?: string
+          is_folklore?: boolean
+          lat?: number | null
+          lon?: number | null
+          origin?: string
+          payload?: Json
+          place_name?: string | null
+          ref: string
+          report_id: string
+          retrieved_at?: string
+          section: string
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
+        }
+        Update: {
+          category?: string | null
+          claim?: string
+          confidence?: number
+          created_at?: string
+          distance_m?: number | null
+          event_date?: string | null
+          geo_precision?: string
+          id?: string
+          is_folklore?: boolean
+          lat?: number | null
+          lon?: number | null
+          origin?: string
+          payload?: Json
+          place_name?: string | null
+          ref?: string
+          report_id?: string
+          retrieved_at?: string
+          section?: string
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facts_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pipeline_tasks: {
+        Row: {
+          attempts: number
+          finished_at: string | null
+          id: number
+          log: Json
+          report_id: string
+          run_after: string
+          stage: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          finished_at?: string | null
+          id?: number
+          log?: Json
+          report_id: string
+          run_after?: string
+          stage: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          finished_at?: string | null
+          id?: number
+          log?: Json
+          report_id?: string
+          run_after?: string
+          stage?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_tasks_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          address_hash: string
+          address_norm: string | null
+          address_raw: string
+          bbl: string | null
+          borough: string | null
+          city: string
+          created_at: string
+          error: string | null
+          generated_at: string | null
+          id: string
+          lat: number | null
+          lon: number | null
+          neighborhood: string | null
+          partial: boolean
+          progress: number
+          radius_m: number
+          schema_version: string
+          sections: Json
+          slug: string
+          stage: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address_hash: string
+          address_norm?: string | null
+          address_raw: string
+          bbl?: string | null
+          borough?: string | null
+          city?: string
+          created_at?: string
+          error?: string | null
+          generated_at?: string | null
+          id?: string
+          lat?: number | null
+          lon?: number | null
+          neighborhood?: string | null
+          partial?: boolean
+          progress?: number
+          radius_m?: number
+          schema_version?: string
+          sections?: Json
+          slug: string
+          stage?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address_hash?: string
+          address_norm?: string | null
+          address_raw?: string
+          bbl?: string | null
+          borough?: string | null
+          city?: string
+          created_at?: string
+          error?: string | null
+          generated_at?: string | null
+          id?: string
+          lat?: number | null
+          lon?: number | null
+          neighborhood?: string | null
+          partial?: boolean
+          progress?: number
+          radius_m?: number
+          schema_version?: string
+          sections?: Json
+          slug?: string
+          stage?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      source_cache: {
+        Row: {
+          expires_at: string | null
+          fetched_at: string
+          key: string
+          payload: Json
+          source: string
+        }
+        Insert: {
+          expires_at?: string | null
+          fetched_at?: string
+          key: string
+          payload: Json
+          source: string
+        }
+        Update: {
+          expires_at?: string | null
+          fetched_at?: string
+          key?: string
+          payload?: Json
+          source?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
