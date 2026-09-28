@@ -30,9 +30,9 @@ export type SectionId =
 export const SECTIONS: { id: SectionId; title: string; blurb: string }[] = [
   { id: "summary", title: "Snapshot", blurb: "What this half mile is." },
   { id: "vice", title: "Street-level vice", blurb: "Then and now." },
+  { id: "timeline", title: "Timeline", blurb: "Dated events inside the circle." },
   { id: "dark_history", title: "Dark history", blurb: "Notable crimes and disasters." },
   { id: "origins", title: "Origins", blurb: "How the ground became blocks." },
-  { id: "timeline", title: "Timeline", blurb: "Dated events inside the circle." },
   {
     id: "treatment",
     title: "Treatment & harm reduction",
