@@ -149,6 +149,92 @@ export async function wikipediaGeo(
   });
 }
 
+/* ------------------------------------- Neighbourhood history (Wikipedia) */
+
+/**
+ * Reads the "History" section of the neighbourhood's Wikipedia page and turns
+ * its sentences into Origins facts. Precision is NEIGHBOURHOOD by design —
+ * these claims belong to the area, not a point — so they only narrate Origins.
+ */
+export async function neighborhoodHistory(
+  neighborhood: string | null,
+  borough: string | null,
+  lat: number,
+  lon: number,
+): Promise<CandidateFact[]> {
+  if (!neighborhood) return [];
+
+  const candidates = [
+    borough ? `${neighborhood}, ${borough}` : neighborhood,
+    neighborhood,
+    `History of ${neighborhood}`,
+  ];
+
+  let pageTitle: string | null = null;
+  let historySection: string | null = null;
+
+  for (const title of candidates) {
+    const sections = await getJson<{
+      parse?: { sections?: { index: string; line: string }[] };
+    }>(
+      `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(
+        title,
+      )}&prop=sections&format=json&origin=*&redirects=1`,
+    );
+    const list = sections?.parse?.sections ?? [];
+    const hit = list.find((s) => /^(history|early history)$/i.test(s.line.trim()));
+    if (hit) {
+      pageTitle = title;
+      historySection = hit.index;
+      break;
+    }
+  }
+  if (!pageTitle || !historySection) return [];
+
+  const content = await getJson<{
+    parse?: { text?: { "*": string } };
+  }>(
+    `https://en.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(
+      pageTitle,
+    )}&prop=text&section=${historySection}&format=json&origin=*&redirects=1`,
+  );
+  const html = content?.parse?.text?.["*"] ?? "";
+  if (!html) return [];
+
+  const text = html
+    .replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<sup[\s\S]*?<\/sup>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&#\d+;|&[a-z]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const sentences = text
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9“"])/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 60 && s.length < 400)
+    .slice(0, 14);
+  if (sentences.length === 0) return [];
+
+  const url = `https://en.wikipedia.org/wiki/${encodeURIComponent(pageTitle.replace(/ /g, "_"))}`;
+  return sentences.map((s) => ({
+    section: "origins" as SectionId,
+    category: "neighborhood_history",
+    claim: s,
+    event_date: null,
+    place_name: neighborhood,
+    lat,
+    lon,
+    distance_m: 0,
+    geo_precision: "NEIGHBORHOOD" as GeoPrecision,
+    confidence: 0.75,
+    is_folklore: false,
+    origin: "structured" as const,
+    source_name: "Wikipedia",
+    source_url: url,
+  }));
+}
+
 /* ------------------------------------------ NYPD complaints (Socrata) (A) */
 
 const DRUG_CODES = ["DANGEROUS DRUGS", "CANNABIS RELATED OFFENSES"];
