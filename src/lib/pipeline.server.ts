@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { generateText, parseJsonObject } from "./ai.server";
 import {
   geocode,
+  neighborhoodHistory,
   nypdComplaints,
   treatmentFacilities,
   wikipediaGeo,
@@ -139,6 +140,7 @@ export async function runPipeline(reportId: string): Promise<void> {
     await setStage(reportId, "adapters", 25);
     const results = await Promise.allSettled([
       wikipediaGeo(lat, lon, radiusM),
+      neighborhoodHistory(report.neighborhood, report.borough, lat, lon),
       nypdComplaints(lat, lon, radiusM),
       treatmentFacilities(lat, lon, radiusM),
     ]);
