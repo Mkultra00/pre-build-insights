@@ -4,6 +4,7 @@ import {
   geocode,
   neighborhoodHistory,
   nypdComplaints,
+  occultHistory,
   treatmentFacilities,
   wikipediaGeo,
   type CandidateFact,
@@ -143,6 +144,7 @@ export async function runPipeline(reportId: string): Promise<void> {
       neighborhoodHistory(report.neighborhood, report.borough, lat, lon),
       nypdComplaints(lat, lon, radiusM),
       treatmentFacilities(lat, lon, radiusM),
+      occultHistory(report.neighborhood, report.borough, lat, lon, radiusM),
     ]);
     const candidates: CandidateFact[] = [];
     let partial = false;
