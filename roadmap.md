@@ -16,5 +16,5 @@ Open
 - Open web research pass (Firecrawl) not wired; Firecrawl connector not yet linked.
 - Pre-warm the two demo addresses so the entry page returns instantly.
 
-- [ ] Dark history: occult mentions in radius with addresses (needs Firecrawl link)
+- [x] Dark history: occult mentions in radius with addresses (needs Firecrawl link)
 - [ ] GitHub repo on mkultr00 (user connects via + menu > GitHub)

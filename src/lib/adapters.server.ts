@@ -365,3 +365,107 @@ export async function treatmentFacilities(
   }
   return facts;
 }
+
+/* ------------------------------------------- Occult & dark history (web, B) */
+
+interface OccultHit {
+  claim: string;
+  place_name?: string | null;
+  address?: string | null;
+  event_date?: string | null;
+  source_url: string;
+  is_folklore?: boolean;
+}
+
+export async function occultHistory(
+  neighborhood: string | null,
+  borough: string | null,
+  lat: number,
+  lon: number,
+  radiusM: number,
+): Promise<CandidateFact[]> {
+  const key = process.env['FIRECRAWL_API_KEY'];
+  if (!key || !neighborhood) return [];
+  const area = `${neighborhood}${borough ? `, ${borough}` : ""}, New York City`;
+  const queries = [
+    `"${neighborhood}" occult OR esoteric OR spiritualist OR witchcraft history`,
+    `"${neighborhood}" haunted OR ghost OR cult history`,
+    `occult history of ${borough ?? "Manhattan"} New York addresses spiritualists mediums theosophists lodges`,
+    `historic occult bookshops magic shops botanicas ${borough ?? "Manhattan"} New York address`,
+  ];
+
+  const results: { url: string; title?: string; description?: string; markdown?: string }[][] = [];
+  for (const q of queries) results.push(await (async () => {
+      try {
+        const res = await fetch("https://api.firecrawl.dev/v2/search", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ query: q, limit: 6, scrapeOptions: { formats: ["markdown"], onlyMainContent: true } }),
+        });
+        if (!res.ok) {
+          console.error(`firecrawl search ${res.status}: ${await res.text()}`);
+          return [];
+        }
+        const j = (await res.json()) as { data?: { web?: unknown[] } | unknown[] };
+        const list = Array.isArray(j.data) ? j.data : (j.data?.web ?? []);
+        return list as { url: string; title?: string; description?: string; markdown?: string }[];
+      } catch {
+        return [];
+      }
+    })());
+
+  const seen = new Set<string>();
+  const docs = results.flat().filter((d) => d?.url && !seen.has(d.url) && seen.add(d.url)).slice(0, 16);
+  if (docs.length === 0) return [];
+
+  const corpus = docs
+    .map((d, i) => `### [${i}] ${d.title ?? ""}\nURL: ${d.url}\n${(d.markdown ?? d.description ?? "").slice(0, 3500)}`)
+    .join("\n\n");
+
+  const { generateText, parseJsonObject } = await import("./ai.server");
+  const text = await generateText(
+    `You extract occult-related historical facts (spiritualism, seances, mediums, theosophy, freemasonic/esoteric lodges, occult bookshops, witchcraft, cults, ritual crimes, ghost lore) anywhere in New York City (distance is checked later, so prefer items with a street address; prioritise ${area}). Use ONLY the provided documents. Every item must be stated in a document; copy its URL exactly. Include a street address when the document gives one (house number + street), else null. No victim names, no claims about current residents. Mark ghost stories / legends is_folklore=true. Output JSON: {"items":[{"claim":"one sentence","place_name":"...","address":"123 Example St, New York, NY"|null,"event_date":"1890s"|null,"source_url":"...","is_folklore":false}]} with at most 20 items.`,
+    corpus,
+  );
+  const parsed = parseJsonObject(text) as { items?: OccultHit[] } | null;
+  const items = (parsed?.items ?? []).filter((it) => it?.claim && docs.some((d) => d.url === it.source_url));
+
+  const facts: CandidateFact[] = [];
+  for (const it of items) {
+    let fLat: number | null = null;
+    let fLon: number | null = null;
+    let dist: number | null = null;
+    let precision: GeoPrecision = "NEIGHBORHOOD";
+    const nb = neighborhood.toLowerCase();
+    const mentionsArea = `${it.claim} ${it.place_name ?? ""}`.toLowerCase().includes(nb);
+    if (it.address) {
+      const g = await geocode(it.address);
+      if (g) {
+        dist = Math.round(haversineM(lat, lon, g.lat, g.lon));
+        const p = precisionFor(dist, radiusM);
+        if (p === "UNVERIFIED") continue; // placed, but outside the area
+        fLat = g.lat;
+        fLon = g.lon;
+        precision = p;
+      } else if (!mentionsArea) continue;
+    } else if (!mentionsArea) continue; // citywide claim with no address: not about this area
+    facts.push({
+      section: it.is_folklore ? "folklore" : "dark_history",
+      category: "occult",
+      claim: it.address ? `${it.claim} (Address: ${it.address}.)` : it.claim,
+      event_date: it.event_date ?? null,
+      place_name: it.place_name ?? it.address ?? null,
+      lat: fLat,
+      lon: fLon,
+      distance_m: dist,
+      geo_precision: precision,
+      confidence: it.address ? 0.7 : 0.55,
+      is_folklore: !!it.is_folklore,
+      origin: "web",
+      source_name: new URL(it.source_url).hostname.replace(/^www\./, ""),
+      source_url: it.source_url,
+      payload: { address: it.address ?? null },
+    });
+  }
+  return facts;
+}
