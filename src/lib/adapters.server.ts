@@ -428,6 +428,7 @@ export async function occultHistory(
     corpus,
   );
   const parsed = parseJsonObject(text) as { items?: OccultHit[] } | null;
+  if (process.env.DEBUG_OCCULT) console.log("occult docs", docs.length, "raw", text.slice(0, 1500));
   const items = (parsed?.items ?? []).filter((it) => it?.claim && docs.some((d) => d.url === it.source_url));
 
   const facts: CandidateFact[] = [];
