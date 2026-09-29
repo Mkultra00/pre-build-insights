@@ -394,8 +394,8 @@ export async function occultHistory(
     `historic occult bookshops magic shops botanicas ${borough ?? "Manhattan"} New York address`,
   ];
 
-  const results = await Promise.all(
-    queries.map(async (q) => {
+  const results: { url: string; title?: string; description?: string; markdown?: string }[][] = [];
+  for (const q of queries) results.push(await (async () => {
       try {
         const res = await fetch("https://api.firecrawl.dev/v2/search", {
           method: "POST",
@@ -412,8 +412,7 @@ export async function occultHistory(
       } catch {
         return [];
       }
-    }),
-  );
+    })());
 
   const seen = new Set<string>();
   const docs = results.flat().filter((d) => d?.url && !seen.has(d.url) && seen.add(d.url)).slice(0, 16);
@@ -429,7 +428,6 @@ export async function occultHistory(
     corpus,
   );
   const parsed = parseJsonObject(text) as { items?: OccultHit[] } | null;
-  if (process.env.DEBUG_OCCULT) console.log("occult docs", docs.length, "raw", text.slice(0, 1500));
   const items = (parsed?.items ?? []).filter((it) => it?.claim && docs.some((d) => d.url === it.source_url));
 
   const facts: CandidateFact[] = [];
@@ -438,6 +436,8 @@ export async function occultHistory(
     let fLon: number | null = null;
     let dist: number | null = null;
     let precision: GeoPrecision = "NEIGHBORHOOD";
+    const nb = neighborhood.toLowerCase();
+    const mentionsArea = `${it.claim} ${it.place_name ?? ""}`.toLowerCase().includes(nb);
     if (it.address) {
       const g = await geocode(it.address);
       if (g) {
@@ -447,8 +447,8 @@ export async function occultHistory(
         fLat = g.lat;
         fLon = g.lon;
         precision = p;
-      }
-    }
+      } else if (!mentionsArea) continue;
+    } else if (!mentionsArea) continue; // citywide claim with no address: not about this area
     facts.push({
       section: it.is_folklore ? "folklore" : "dark_history",
       category: "occult",
