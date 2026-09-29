@@ -384,7 +384,7 @@ export async function occultHistory(
   lon: number,
   radiusM: number,
 ): Promise<CandidateFact[]> {
-  const key = process.env.FIRECRAWL_API_KEY;
+  const key = process.env['FIRECRAWL_API_KEY'];
   if (!key || !neighborhood) return [];
   const area = `${neighborhood}${borough ? `, ${borough}` : ""}, New York City`;
   const queries = [
