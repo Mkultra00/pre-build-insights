@@ -122,6 +122,8 @@ export async function runPipeline(reportId: string): Promise<void> {
         return;
       }
       lat = geo.lat;
+      report.neighborhood = geo.neighborhood;
+      report.borough = geo.borough;
       lon = geo.lon;
       await supabaseAdmin
         .from("reports")
