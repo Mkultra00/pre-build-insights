@@ -388,9 +388,10 @@ export async function occultHistory(
   if (!key || !neighborhood) return [];
   const area = `${neighborhood}${borough ? `, ${borough}` : ""}, New York City`;
   const queries = [
-    `occult history ${area}`,
-    `spiritualist seance medium theosophical society ${area} address history`,
-    `witchcraft satanic cult ritual ${area} history`,
+    `"${neighborhood}" occult OR esoteric OR spiritualist OR witchcraft history`,
+    `"${neighborhood}" haunted OR ghost OR cult history`,
+    `occult history of ${borough ?? "Manhattan"} New York addresses spiritualists mediums theosophists lodges`,
+    `historic occult bookshops magic shops botanicas ${borough ?? "Manhattan"} New York address`,
   ];
 
   const results = await Promise.all(
@@ -415,7 +416,7 @@ export async function occultHistory(
   );
 
   const seen = new Set<string>();
-  const docs = results.flat().filter((d) => d?.url && !seen.has(d.url) && seen.add(d.url)).slice(0, 12);
+  const docs = results.flat().filter((d) => d?.url && !seen.has(d.url) && seen.add(d.url)).slice(0, 16);
   if (docs.length === 0) return [];
 
   const corpus = docs
@@ -424,7 +425,7 @@ export async function occultHistory(
 
   const { generateText, parseJsonObject } = await import("./ai.server");
   const text = await generateText(
-    `You extract occult-related historical facts (spiritualism, seances, mediums, theosophy, freemasonic/esoteric lodges, occult bookshops, witchcraft, cults, ritual crimes, ghost lore) located in or near ${area}. Use ONLY the provided documents. Every item must be stated in a document; copy its URL exactly. Include a street address when the document gives one (house number + street), else null. No victim names, no claims about current residents. Mark ghost stories / legends is_folklore=true. Output JSON: {"items":[{"claim":"one sentence","place_name":"...","address":"123 Example St, New York, NY"|null,"event_date":"1890s"|null,"source_url":"...","is_folklore":false}]} with at most 15 items.`,
+    `You extract occult-related historical facts (spiritualism, seances, mediums, theosophy, freemasonic/esoteric lodges, occult bookshops, witchcraft, cults, ritual crimes, ghost lore) anywhere in New York City (distance is checked later, so prefer items with a street address; prioritise ${area}). Use ONLY the provided documents. Every item must be stated in a document; copy its URL exactly. Include a street address when the document gives one (house number + street), else null. No victim names, no claims about current residents. Mark ghost stories / legends is_folklore=true. Output JSON: {"items":[{"claim":"one sentence","place_name":"...","address":"123 Example St, New York, NY"|null,"event_date":"1890s"|null,"source_url":"...","is_folklore":false}]} with at most 20 items.`,
     corpus,
   );
   const parsed = parseJsonObject(text) as { items?: OccultHit[] } | null;
